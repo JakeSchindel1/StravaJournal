@@ -69,12 +69,12 @@ export function EmailAuthForm({
   };
 
   const inputBase =
-    "w-full rounded-xl border border-[#D6D0C4] bg-white px-4 py-3 text-[#171614] placeholder:text-[#8D877A] transition focus:border-[#141414] focus:outline-none focus:ring-1 focus:ring-[#141414]/20";
+    "w-full rounded-xl border border-[#E5E5E5] bg-white px-4 py-3 text-[#231F20] placeholder:text-[#8D877A] transition focus:border-[#231F20] focus:outline-none focus:ring-1 focus:ring-[#231F20]/20";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="modal-email" className="mb-1.5 block text-sm font-medium text-[#3B3A36]">
+        <label htmlFor="modal-email" className="mb-1.5 block text-sm font-medium text-[#231F20]">
           Email
         </label>
         <input
@@ -89,7 +89,7 @@ export function EmailAuthForm({
         />
       </div>
       <div>
-        <label htmlFor="modal-password" className="mb-1.5 block text-sm font-medium text-[#3B3A36]">
+        <label htmlFor="modal-password" className="mb-1.5 block text-sm font-medium text-[#231F20]">
           Password
         </label>
         <input
@@ -107,7 +107,7 @@ export function EmailAuthForm({
       </div>
       {mode === "signup" && (
         <div>
-          <label htmlFor="modal-confirm" className="mb-1.5 block text-sm font-medium text-[#3B3A36]">
+          <label htmlFor="modal-confirm" className="mb-1.5 block text-sm font-medium text-[#231F20]">
             Confirm password
           </label>
           <input
@@ -135,7 +135,7 @@ export function EmailAuthForm({
       >
         {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
       </button>
-      <p className="text-center text-sm text-[#5A5853]">
+      <p className="text-center text-sm text-[#6B6B6B]">
         {mode === "signup" ? "Already have an account?" : "Don't have an account?"}{" "}
         <button
           type="button"
@@ -143,7 +143,7 @@ export function EmailAuthForm({
             onModeToggle();
             resetForm();
           }}
-          className="font-medium text-[#171614] underline underline-offset-2 hover:no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#141414] focus-visible:ring-offset-2 rounded"
+          className="font-medium text-[#231F20] underline underline-offset-2 hover:no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2 rounded"
         >
           {mode === "signup" ? "Sign in" : "Sign up"}
         </button>

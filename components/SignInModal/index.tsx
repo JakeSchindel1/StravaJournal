@@ -148,7 +148,7 @@ export function SignInModal({ isOpen, onClose, authHandlers = {} }: SignInModalP
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 sm:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#231F20]/40 p-4 sm:p-6"
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
@@ -157,19 +157,19 @@ export function SignInModal({ isOpen, onClose, authHandlers = {} }: SignInModalP
     >
       <div
         ref={modalRef}
-        className="w-full max-w-md rounded-2xl border border-[#D6D0C4] bg-[#F7F4EF] p-8 shadow-float sm:p-10"
+        className="w-full max-w-md rounded-2xl border border-[#E5E5E5] bg-white p-8 shadow-float sm:p-10"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="mb-8">
           <div className="mb-2 flex items-start justify-between gap-4">
-            <h2 id="signin-modal-title" className="heading text-2xl text-[#171614] sm:text-3xl">
+            <h2 id="signin-modal-title" className="heading text-2xl text-[#231F20] sm:text-3xl">
               Create your journal
             </h2>
             <button
               type="button"
               onClick={handleClose}
-              className="rounded-full p-1.5 text-[#5A5853] transition hover:bg-[#E8E3D8] hover:text-[#171614] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#141414] focus-visible:ring-offset-2"
+              className="rounded-full p-1.5 text-[#6B6B6B] transition hover:bg-[#F0F0F0] hover:text-[#231F20] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2"
               aria-label="Close modal"
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -177,7 +177,7 @@ export function SignInModal({ isOpen, onClose, authHandlers = {} }: SignInModalP
               </svg>
             </button>
           </div>
-          <p id="signin-modal-desc" className="text-[#5A5853] text-base leading-relaxed">
+          <p id="signin-modal-desc" className="text-[#6B6B6B] text-base leading-relaxed">
             Link your activity data to build a personalized journal.
           </p>
         </div>
@@ -214,7 +214,7 @@ export function SignInModal({ isOpen, onClose, authHandlers = {} }: SignInModalP
                   setShowEmailForm(false);
                   setError(null);
                 }}
-                className="mb-4 text-sm text-[#5A5853] hover:text-[#171614] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#141414] focus-visible:ring-offset-2 rounded"
+                className="mb-4 text-sm text-[#6B6B6B] hover:text-[#231F20] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2 rounded"
               >
                 ← Use Strava or Google instead
               </button>
@@ -232,9 +232,9 @@ export function SignInModal({ isOpen, onClose, authHandlers = {} }: SignInModalP
           ) : (
             <div className="space-y-4">
               <div className="flex items-center gap-4" aria-hidden>
-                <div className="h-px flex-1 bg-[#D6D0C4]" />
+                <div className="h-px flex-1 bg-[#E5E5E5]" />
                 <span className="text-sm text-[#8D877A]">or</span>
-                <div className="h-px flex-1 bg-[#D6D0C4]" />
+                <div className="h-px flex-1 bg-[#E5E5E5]" />
               </div>
               <div className="flex flex-col items-center gap-2">
                 <button
@@ -243,7 +243,7 @@ export function SignInModal({ isOpen, onClose, authHandlers = {} }: SignInModalP
                     setMode("signup");
                     setShowEmailForm(true);
                   }}
-                  className="text-sm font-medium text-[#171614] hover:text-[#3B3A36] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#141414] focus-visible:ring-offset-2 rounded"
+                  className="text-sm font-medium text-[#231F20] hover:text-[#231F20]/80 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2 rounded"
                 >
                   Sign up with email
                 </button>
@@ -253,7 +253,7 @@ export function SignInModal({ isOpen, onClose, authHandlers = {} }: SignInModalP
                     setMode("signin");
                     setShowEmailForm(true);
                   }}
-                  className="text-sm text-[#8D877A] hover:text-[#5A5853] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#141414] focus-visible:ring-offset-2 rounded"
+                  className="text-sm text-[#8D877A] hover:text-[#6B6B6B] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2 rounded"
                 >
                   Sign in
                 </button>

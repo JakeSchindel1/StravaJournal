@@ -4,14 +4,14 @@ import { SectionShell } from "../SectionShell";
 export function FinalCtaSection() {
   return (
     <SectionShell id="get-started" className="text-center">
-      <h2 className="heading reveal text-4xl leading-tight text-[#171614] sm:text-5xl md:text-6xl">
+      <h2 className="heading reveal text-4xl leading-tight text-[#231F20] sm:text-5xl md:text-6xl">
         A better home
         <br />
         for your training.
       </h2>
 
       <p
-        className="reveal mx-auto mt-8 max-w-xl text-lg leading-relaxed text-[#393732]"
+        className="reveal mx-auto mt-8 max-w-xl text-lg leading-relaxed text-[#231F20]/80"
         style={{ animationDelay: "100ms" }}
       >
         One journal. Your history.

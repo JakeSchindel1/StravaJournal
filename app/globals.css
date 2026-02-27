@@ -21,11 +21,11 @@ body {
 }
 
 .button-primary {
-  @apply inline-flex items-center justify-center rounded-full border border-[#141414] bg-[#141414] px-8 py-3 text-sm font-semibold tracking-[0.04em] text-[#F9F8F5] transition duration-300;
+  @apply inline-flex items-center justify-center rounded-full border border-[#231F20] bg-[#231F20] px-8 py-3 text-sm font-semibold tracking-[0.04em] text-white transition duration-300;
 }
 
 .button-primary:hover {
-  @apply bg-[#2A2A28] border-[#2A2A28];
+  @apply border-[#3D3839] bg-[#3D3839];
 }
 
 /* Hide scrollbar for horizontal scroll (keeps scroll behavior) */
@@ -46,5 +46,18 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

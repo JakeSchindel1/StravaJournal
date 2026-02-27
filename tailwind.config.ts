@@ -8,9 +8,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: "#F7F4EF",
-        ink: "#161615",
-        stone: "#CEC7BB"
+        paper: "#FFFFFF",
+        ink: "#231F20",
+        stone: "#E5E5E5"
       },
       boxShadow: {
         journal: "0 40px 90px -42px rgba(18, 18, 16, 0.42)",

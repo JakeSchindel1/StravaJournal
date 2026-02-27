@@ -46,12 +46,12 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
           <div
             key={i}
             className={`h-1 flex-1 rounded-full transition-colors duration-200 ${
-              i < filled ? barColor : "bg-[#D6D0C4]/50"
+              i < filled ? barColor : "bg-[#E5E5E5]"
             }`}
           />
         ))}
       </div>
-      <p className="text-xs text-[#5A5853]">
+      <p className="text-xs text-[#6B6B6B]">
         {strength === "weak" && "Add more characters or mix letter types"}
         {strength === "fair" && "Add uppercase, numbers, or symbols"}
         {strength === "good" && "Good — longer is stronger"}
