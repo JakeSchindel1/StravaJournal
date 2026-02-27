@@ -84,7 +84,7 @@ export function CraftSection() {
 
   return (
     <SectionShell>
-      <div className="max-w-3xl">
+      <div className="mx-auto max-w-3xl text-center">
         <h2 className="heading reveal text-4xl leading-tight text-[#231F20] sm:text-5xl md:text-6xl">
           Crafted as an archive,
           <br />
@@ -92,34 +92,36 @@ export function CraftSection() {
         </h2>
       </div>
 
-      {/* Apple-style feature selector */}
-      <div className="mt-14">
-        <div className="inline-flex flex-wrap justify-center gap-1 rounded-2xl bg-[#F0F0F0] p-1.5">
-          {qualities.map((item, index) => (
-            <button
-              key={item.title}
-              type="button"
-              onClick={() => setSelected(index)}
-              className={`rounded-xl px-4 py-2.5 text-center text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2 ${
-                selected === index
-                  ? "bg-white text-[#231F20] shadow-sm"
-                  : "text-[#6B6B6B] hover:bg-white/80 hover:text-[#231F20]"
-              }`}
-            >
-              {item.title}
-            </button>
-          ))}
+      <div className="mt-14 flex flex-col items-center">
+        {/* Visual first */}
+        <div key={quality.visual} className="animate-fade-in w-full">
+          <FeatureVisual type={quality.visual} />
         </div>
 
-        {/* Content area: visual + text */}
-        <div className="mt-12">
-          <div key={quality.visual} className="animate-fade-in">
-            <FeatureVisual type={quality.visual} />
-            <p className="mx-auto mt-8 max-w-xl text-center text-[15px] leading-relaxed text-[#231F20]/80">
-              {quality.detail}
-            </p>
+        {/* Pill selector centered below image */}
+        <div className="mt-10 flex justify-center">
+          <div className="inline-flex flex-wrap justify-center gap-1 rounded-2xl bg-[#F0F0F0] p-1.5">
+            {qualities.map((item, index) => (
+              <button
+                key={item.title}
+                type="button"
+                onClick={() => setSelected(index)}
+                className={`rounded-xl px-4 py-2.5 text-center text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2 ${
+                  selected === index
+                    ? "bg-white text-[#231F20] shadow-sm"
+                    : "text-[#6B6B6B] hover:bg-white/80 hover:text-[#231F20]"
+                }`}
+              >
+                {item.title}
+              </button>
+            ))}
           </div>
         </div>
+
+        {/* Description text */}
+        <p className="mx-auto mt-8 max-w-xl text-center text-[15px] leading-relaxed text-[#231F20]/80">
+          {quality.detail}
+        </p>
       </div>
     </SectionShell>
   );
