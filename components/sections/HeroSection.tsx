@@ -1,4 +1,4 @@
-import { GET_STARTED_HREF } from "../getStarted";
+import { GetStartedButton } from "../GetStartedButton";
 import { JournalVisual } from "../JournalVisual";
 
 export function HeroSection() {
@@ -24,13 +24,7 @@ export function HeroSection() {
           One journal. Your history. Made to be kept.
         </p>
 
-        <a
-          href={GET_STARTED_HREF}
-          className="button-primary reveal mt-10"
-          style={{ animationDelay: "220ms" }}
-        >
-          Get Started
-        </a>
+        <GetStartedButton className="mt-10" />
 
         <div className="reveal w-full" style={{ animationDelay: "300ms" }}>
           <JournalVisual />
