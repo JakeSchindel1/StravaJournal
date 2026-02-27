@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { AuthModalProvider } from "@/contexts/AuthModalContext";
+import { StickyHeader } from "@/components/StickyHeader";
 
 // PolymathDisp is the only font used site-wide (replaces Manrope + Cormorant Garamond)
 const polymath = localFont({
@@ -26,7 +28,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={polymath.variable}>
-      <body>{children}</body>
+      <body>
+        <AuthModalProvider>
+          <StickyHeader />
+          {children}
+        </AuthModalProvider>
+      </body>
     </html>
   );
 }

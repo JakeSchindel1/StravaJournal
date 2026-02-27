@@ -1,0 +1,54 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useAuthModal } from "@/contexts/AuthModalContext";
+
+const GET_STARTED_ANCHOR_ID = "get-started-anchor";
+
+export function StickyHeader() {
+  const [isVisible, setIsVisible] = useState(false);
+  const { openModal } = useAuthModal();
+
+  useEffect(() => {
+    const anchor = document.getElementById(GET_STARTED_ANCHOR_ID);
+    if (!anchor) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "-10px 0px 0px 0px" }
+    );
+
+    observer.observe(anchor);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <header
+      className={`fixed left-4 right-4 top-4 z-40 flex items-center justify-between rounded-full px-6 py-2 backdrop-blur-xl bg-white/90 border border-[#E5E5E5]/80 shadow-sm transition-opacity duration-500 ease-out md:left-1/2 md:right-auto md:top-5 md:w-full md:max-w-4xl md:-translate-x-1/2 ${
+        isVisible ? "opacity-100" : "pointer-events-none opacity-0"
+      }`}
+      role="banner"
+      aria-hidden={!isVisible}
+    >
+      <span className="heading text-sm font-semibold text-[#231F20] sm:text-base">Activity Journal</span>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => openModal("signin")}
+          className="rounded-full px-3 py-1.5 text-sm font-medium text-[#231F20] hover:bg-[#F0F0F0] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2"
+        >
+          Sign in
+        </button>
+        <button
+          type="button"
+          onClick={() => openModal("signup")}
+          className="button-primary py-1.5 px-4 text-sm"
+        >
+          Get Started
+        </button>
+      </div>
+    </header>
+  );
+}

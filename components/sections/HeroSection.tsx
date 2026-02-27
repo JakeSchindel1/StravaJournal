@@ -23,7 +23,9 @@ export function HeroSection() {
           One journal. Your history. Made to be kept.
         </p>
 
-        <GetStartedButton className="mt-10" />
+        <div id="get-started-anchor" className="mt-10">
+          <GetStartedButton />
+        </div>
       </div>
     </header>
   );

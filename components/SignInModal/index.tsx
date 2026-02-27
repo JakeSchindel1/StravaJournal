@@ -36,16 +36,28 @@ type AuthMode = "signup" | "signin";
 type SignInModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  /** Initial mode when modal opens (e.g. "signin" when opened from header) */
+  initialMode?: AuthMode;
+  /** When true (e.g. from "Sign in" button), skip social options and show email form directly */
+  initialShowEmailForm?: boolean;
   /** Optional: wire these when connecting Supabase. When omitted, falls back to direct Supabase calls if configured. */
   authHandlers?: SignInModalAuthHandlers;
 };
 
-export function SignInModal({ isOpen, onClose, authHandlers = {} }: SignInModalProps) {
-  const [mode, setMode] = useState<AuthMode>("signup");
-  const [showEmailForm, setShowEmailForm] = useState(false);
+export function SignInModal({ isOpen, onClose, initialMode = "signup", initialShowEmailForm = false, authHandlers = {} }: SignInModalProps) {
+  const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [showEmailForm, setShowEmailForm] = useState(initialShowEmailForm);
   const [loadingSource, setLoadingSource] = useState<AuthLoadingSource>(null);
   const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  // Sync mode and email form when modal opens (e.g. from sticky header "Sign in" → show email form directly)
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+      setShowEmailForm(initialShowEmailForm);
+    }
+  }, [isOpen, initialMode, initialShowEmailForm]);
 
   const resetState = useCallback(() => {
     setError(null);
