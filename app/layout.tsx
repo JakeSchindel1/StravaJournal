@@ -1,0 +1,32 @@
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+import "./globals.css";
+
+// PolymathDisp is the only font used site-wide (replaces Manrope + Cormorant Garamond)
+const polymath = localFont({
+  src: [
+    { path: "../public/fonts/PolymathDisp-Regular.ttf", weight: "400" },
+    { path: "../public/fonts/PolymathDisp-Medium.ttf", weight: "500" },
+    { path: "../public/fonts/PolymathDisp-Semibold.ttf", weight: "600" },
+    { path: "../public/fonts/PolymathDisp-Bold.ttf", weight: "700" }
+  ],
+  variable: "--font-polymath"
+});
+
+export const metadata: Metadata = {
+  title: "Strava Journal | A better home for your training",
+  description:
+    "A premium physical journal built from your activity history. One journal. Your history. Made to be kept."
+};
+
+export default function RootLayout({
+  children
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" className={polymath.variable}>
+      <body>{children}</body>
+    </html>
+  );
+}

@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-paper text-ink antialiased;
+  font-family: var(--font-polymath), sans-serif;
+}
+
+.heading {
+  font-family: var(--font-polymath), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.reveal {
+  animation: reveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.button-primary {
+  @apply inline-flex items-center justify-center rounded-full border border-[#141414] bg-[#141414] px-8 py-3 text-sm font-semibold tracking-[0.04em] text-[#F9F8F5] transition duration-300;
+}
+
+.button-primary:hover {
+  @apply bg-[#2A2A28] border-[#2A2A28];
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
