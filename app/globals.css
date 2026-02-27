@@ -28,6 +28,15 @@ body {
   @apply bg-[#2A2A28] border-[#2A2A28];
 }
 
+/* Hide scrollbar for horizontal scroll (keeps scroll behavior) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes reveal {
   from {
     opacity: 0;

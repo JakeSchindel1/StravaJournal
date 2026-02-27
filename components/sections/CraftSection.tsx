@@ -30,17 +30,20 @@ export function CraftSection() {
         </h2>
       </div>
 
-      <div className="mt-14 divide-y divide-[#D6D0C4] border-y border-[#D6D0C4]">
-        {qualities.map((item, index) => (
-          <article
-            key={item.title}
-            className="reveal grid gap-3 py-7 sm:grid-cols-[1fr_2fr] sm:gap-10"
-            style={{ animationDelay: `${index * 90}ms` }}
-          >
-            <h3 className="heading text-2xl text-[#22211E] sm:text-3xl">{item.title}</h3>
-            <p className="text-base leading-relaxed text-[#3E3C36] sm:text-lg">{item.detail}</p>
-          </article>
-        ))}
+      {/* Horizontal scroll on mobile (scroll-snap), grid on desktop — Apple-style minimal cards */}
+      <div className="mt-14 -mx-6 overflow-x-auto px-6 scroll-smooth scrollbar-hide md:mx-0 md:overflow-visible md:px-0">
+        <div className="flex gap-4 snap-x snap-mandatory md:grid md:grid-cols-2 md:snap-none md:gap-6">
+          {qualities.map((item, index) => (
+            <article
+              key={item.title}
+              className="reveal flex min-w-[280px] shrink-0 snap-center flex-col rounded-2xl border border-[#E8E3D8] bg-white/80 p-8 backdrop-blur-sm md:min-w-0"
+              style={{ animationDelay: `${index * 80}ms` }}
+            >
+              <h3 className="heading text-xl text-[#171614] sm:text-2xl">{item.title}</h3>
+              <p className="mt-3 text-[15px] leading-relaxed text-[#5A5853]">{item.detail}</p>
+            </article>
+          ))}
+        </div>
       </div>
     </SectionShell>
   );

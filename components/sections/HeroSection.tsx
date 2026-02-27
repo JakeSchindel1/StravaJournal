@@ -1,5 +1,4 @@
 import { GetStartedButton } from "../GetStartedButton";
-import { JournalVisual } from "../JournalVisual";
 
 export function HeroSection() {
   return (
@@ -25,10 +24,6 @@ export function HeroSection() {
         </p>
 
         <GetStartedButton className="mt-10" />
-
-        <div className="reveal w-full" style={{ animationDelay: "300ms" }}>
-          <JournalVisual />
-        </div>
       </div>
     </header>
   );
