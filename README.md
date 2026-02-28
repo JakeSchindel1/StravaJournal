@@ -30,6 +30,10 @@ Set these in `.env.local`:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only, for Strava user creation + magic links)
+- `STRAVA_CLIENT_ID` (from [Strava API settings](https://www.strava.com/settings/api))
+- `STRAVA_CLIENT_SECRET` (server-only)
+- `STRAVA_REDIRECT_URI` (e.g. `http://localhost:3000/api/auth/strava/callback`)
 
 ### Supabase dashboard configuration
 
@@ -40,7 +44,13 @@ In **Supabase → Authentication → URL Configuration**:
 
 In **Supabase → Authentication → Providers**:
 - Enable **Google** and add client ID/secret.
-- Enable **Strava** and add client ID/secret.
+
+In **Supabase → Authentication → URL Configuration** (for Strava magic-link redirects):
+- Add redirect URLs: `http://localhost:3000/profile`, `http://localhost:3000/dashboard`, `http://localhost:3000/onboarding` (or use wildcard `http://localhost:3000/**` for dev).
+
+**Strava OAuth** uses a custom flow (not Supabase’s built-in Strava provider). Configure your [Strava API app](https://www.strava.com/settings/api) with:
+- Authorization Callback Domain: `localhost` (dev) or your production domain
+- The callback URL is `STRAVA_REDIRECT_URI` (e.g. `http://localhost:3000/api/auth/strava/callback`)
 
 ## Create internal profiles for every account (required)
 

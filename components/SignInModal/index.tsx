@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { signInWithEmail, signInWithOAuth, signUpWithEmail } from "@/lib/supabase";
+import { startStravaAuth } from "@/lib/strava/client";
 import type { SignInModalAuthHandlers } from "./types";
 import { AuthButton } from "./AuthButton";
 import { StravaIcon } from "./StravaIcon";
@@ -106,7 +107,8 @@ export function SignInModal({ isOpen, onClose, initialMode = "signup", initialSh
 
   const handleStravaAuth = useCallback(async () => {
     await runAuth("strava", authHandlers.onStravaAuth, async () => {
-      await signInWithOAuth("strava");
+      // Custom Strava OAuth flow (outside Supabase provider list)
+      startStravaAuth("/profile");
     });
   }, [authHandlers.onStravaAuth]);
 
