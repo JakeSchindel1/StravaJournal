@@ -1,3 +1,4 @@
+import { Footer } from "@/components/Footer";
 import { CraftSection } from "@/components/sections/CraftSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { MeaningSection } from "@/components/sections/MeaningSection";
@@ -10,6 +11,7 @@ export default function HomePage() {
       <ProductConceptSection />
       <CraftSection />
       <MeaningSection />
+      <Footer />
     </main>
   );
 }
