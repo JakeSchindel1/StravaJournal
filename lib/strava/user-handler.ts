@@ -110,3 +110,57 @@ export async function findOrCreateStravaUser(
 
   return { userId, email };
 }
+
+/**
+ * Links a Strava account to an existing user (e.g. Google/email user connecting Strava).
+ * Use when user is already signed in and clicks "Connect Strava".
+ * Throws if athlete_id is already linked to a different user.
+ */
+export async function linkStravaToUser(
+  existingUserId: string,
+  tokenData: StravaTokenResponse
+): Promise<void> {
+  const supabase = createAdminClient();
+  const athleteId = tokenData.athlete.id;
+
+  const { data: existing } = await supabase
+    .from("strava_connections")
+    .select("user_id")
+    .eq("athlete_id", athleteId)
+    .single();
+
+  if (existing) {
+    if (existing.user_id === existingUserId) {
+      // Same user - just update tokens
+      const expiresAt = tokenData.expires_at
+        ? new Date(tokenData.expires_at * 1000).toISOString()
+        : null;
+      await supabase
+        .from("strava_connections")
+        .update({
+          access_token: tokenData.access_token,
+          refresh_token: tokenData.refresh_token,
+          scope: STRAVA_SCOPE,
+          expires_at: expiresAt,
+          updated_at: new Date().toISOString()
+        })
+        .eq("user_id", existingUserId);
+      return;
+    }
+    // Strava account already linked to another user
+    throw new Error("STRAVA_ALREADY_LINKED");
+  }
+
+  const expiresAt = tokenData.expires_at
+    ? new Date(tokenData.expires_at * 1000).toISOString()
+    : null;
+
+  await supabase.from("strava_connections").insert({
+    user_id: existingUserId,
+    athlete_id: athleteId,
+    scope: STRAVA_SCOPE,
+    access_token: tokenData.access_token,
+    refresh_token: tokenData.refresh_token,
+    expires_at: expiresAt
+  });
+}

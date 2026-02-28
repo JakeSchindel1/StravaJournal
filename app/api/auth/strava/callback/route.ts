@@ -6,9 +6,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { exchangeStravaCode } from "@/lib/strava/auth";
-import { consumeStateCookie, consumeRedirectCookie } from "@/lib/strava/cookies";
+import { consumeStateCookie, consumeRedirectCookie, consumeLinkUserCookie } from "@/lib/strava/cookies";
 import { sanitizeRedirectTo } from "@/lib/strava/redirect";
-import { findOrCreateStravaUser } from "@/lib/strava/user-handler";
+import { findOrCreateStravaUser, linkStravaToUser } from "@/lib/strava/user-handler";
 import { createAdminClient } from "@/lib/supabase-server";
 
 function errorRedirect(
@@ -64,6 +64,24 @@ export async function GET(request: NextRequest) {
     return errorRedirect(request, "strava_auth_failed");
   }
 
+  const redirectTo = sanitizeRedirectTo(await consumeRedirectCookie());
+  const linkUserId = await consumeLinkUserCookie();
+
+  // Link flow: user was already signed in, attach Strava to their account
+  if (linkUserId) {
+    try {
+      await linkStravaToUser(linkUserId, tokenData);
+    } catch (err) {
+      const isAlreadyLinked = err instanceof Error && err.message === "STRAVA_ALREADY_LINKED";
+      const base = new URL(request.url).origin;
+      return NextResponse.redirect(
+        `${base}/account?error=${isAlreadyLinked ? "strava_already_linked" : "strava_auth_failed"}`
+      );
+    }
+    return NextResponse.redirect(new URL(redirectTo, request.url).toString());
+  }
+
+  // Sign-in flow: find or create user, establish session via magic link
   let userResult;
   try {
     userResult = await findOrCreateStravaUser(tokenData);
@@ -71,16 +89,16 @@ export async function GET(request: NextRequest) {
     return errorRedirect(request, "strava_auth_failed");
   }
 
-  // Establish session via magic link (Supabase handles cookie/session)
   const supabase = createAdminClient();
   const baseUrl = new URL(request.url).origin;
-  const redirectTo = sanitizeRedirectTo(await consumeRedirectCookie());
+  // Route through /auth/callback so Supabase redirect lands on an allowlisted URL
+  const magicLinkRedirect = `${baseUrl}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
 
   const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
     type: "magiclink",
     email: userResult.email,
     options: {
-      redirectTo: `${baseUrl}${redirectTo}`
+      redirectTo: magicLinkRedirect
     }
   });
 
@@ -88,6 +106,5 @@ export async function GET(request: NextRequest) {
     return errorRedirect(request, "strava_auth_failed");
   }
 
-  // Redirect user to magic link - Supabase verifies and redirects back with session
   return NextResponse.redirect(linkData.properties.action_link);
 }

@@ -3,12 +3,12 @@
  * Only allows relative paths that start with / and don't escape the app.
  */
 
-const ALLOWED_PREFIXES = ["/profile", "/dashboard", "/onboarding", "/"];
+const ALLOWED_PREFIXES = ["/account", "/profile", "/dashboard", "/onboarding", "/"];
 
 /** Validates redirectTo and returns a safe path, or defaultPath if invalid */
 export function sanitizeRedirectTo(
   redirectTo: string | null | undefined,
-  defaultPath = "/profile"
+  defaultPath = "/account"
 ): string {
   if (!redirectTo || typeof redirectTo !== "string") return defaultPath;
 

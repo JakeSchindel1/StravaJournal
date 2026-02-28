@@ -8,7 +8,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-[#FAFAFA] py-12 md:py-16">
+    <footer className="bg-white py-12 md:py-16">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 px-6 md:flex-row md:px-12">
         <span className="heading text-sm font-medium text-[#231F20]">ActivityJournal</span>
         <nav className="flex items-center gap-6" aria-label="Social links">

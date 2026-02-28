@@ -2,7 +2,7 @@ import { SectionShell } from "../SectionShell";
 
 export function MeaningSection() {
   return (
-    <section className="bg-[#FAFAFA]">
+    <section className="bg-white">
       <SectionShell>
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="heading reveal text-4xl leading-tight text-[#231F20] sm:text-5xl md:text-6xl">

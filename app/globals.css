@@ -62,3 +62,19 @@ body {
   }
 }
 
+/* Modal: fade + slide up */
+.animate-modal-in {
+  animation: modalIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

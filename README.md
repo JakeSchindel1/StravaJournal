@@ -45,8 +45,7 @@ In **Supabase → Authentication → URL Configuration**:
 In **Supabase → Authentication → Providers**:
 - Enable **Google** and add client ID/secret.
 
-In **Supabase → Authentication → URL Configuration** (for Strava magic-link redirects):
-- Add redirect URLs: `http://localhost:3000/profile`, `http://localhost:3000/dashboard`, `http://localhost:3000/onboarding` (or use wildcard `http://localhost:3000/**` for dev).
+The Strava magic-link flow redirects through `/auth/callback`, so no extra redirect URLs are needed beyond the one above.
 
 **Strava OAuth** uses a custom flow (not Supabase’s built-in Strava provider). Configure your [Strava API app](https://www.strava.com/settings/api) with:
 - Authorization Callback Domain: `localhost` (dev) or your production domain

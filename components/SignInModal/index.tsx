@@ -108,7 +108,7 @@ export function SignInModal({ isOpen, onClose, initialMode = "signup", initialSh
   const handleStravaAuth = useCallback(async () => {
     await runAuth("strava", authHandlers.onStravaAuth, async () => {
       // Custom Strava OAuth flow (outside Supabase provider list)
-      startStravaAuth("/profile");
+      startStravaAuth("/account");
     });
   }, [authHandlers.onStravaAuth]);
 

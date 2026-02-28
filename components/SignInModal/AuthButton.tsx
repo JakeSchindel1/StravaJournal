@@ -17,7 +17,7 @@ export function AuthButton({ onClick, disabled, variant, icon, children }: AuthB
   const styles =
     variant === "primary"
       ? "border-2 border-[#FC4C02] bg-[#FC4C02] text-white hover:bg-[#E04502] hover:border-[#E04502] active:scale-[0.99]"
-      : "border border-[#E5E5E5] bg-white text-[#231F20] hover:bg-[#FAFAFA] hover:border-[#D0D0D0] active:scale-[0.99]";
+      : "border border-[#E5E5E5] bg-white text-[#231F20] hover:bg-[#F5F5F5] hover:border-[#D0D0D0] active:scale-[0.99]";
 
   return (
     <button

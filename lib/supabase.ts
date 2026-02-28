@@ -1,4 +1,5 @@
-import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 type OAuthProvider = "google" | "strava";
 
@@ -12,7 +13,8 @@ function getSupabaseConfig() {
 }
 
 /**
- * Creates a singleton browser Supabase client.
+ * Creates a singleton browser Supabase client using @supabase/ssr.
+ * Stores session in cookies so PKCE works across OAuth redirects.
  * Returns null when project env vars are not configured yet.
  */
 export function createClient(): SupabaseClient | null {
@@ -21,14 +23,7 @@ export function createClient(): SupabaseClient | null {
   const { url, anonKey } = getSupabaseConfig();
   if (!url || !anonKey) return null;
 
-  browserClient = createSupabaseClient(url, anonKey, {
-    auth: {
-      flowType: "pkce",
-      detectSessionInUrl: true,
-      persistSession: true,
-      autoRefreshToken: true
-    }
-  });
+  browserClient = createBrowserClient(url, anonKey);
 
   return browserClient;
 }
@@ -41,7 +36,10 @@ export function isSupabaseConfigured() {
 function getAuthCallbackUrl() {
   if (typeof window === "undefined") return undefined;
 
-  const next = `${window.location.pathname}${window.location.search}`;
+  const path = window.location.pathname;
+  const search = window.location.search;
+  // Default post-auth destination is /account; preserve explicit internal paths
+  const next = path === "/" || !path ? "/account" : `${path}${search}`;
   const callback = new URL("/auth/callback", window.location.origin);
   callback.searchParams.set("next", next);
 
@@ -82,4 +80,13 @@ export async function signInWithEmail(email: string, password: string) {
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
+}
+
+/** Signs out the current user and redirects to home. */
+export async function signOut(): Promise<void> {
+  const supabase = createClient();
+  if (supabase) {
+    await supabase.auth.signOut();
+  }
+  window.location.href = "/";
 }

@@ -7,6 +7,8 @@ import { cookies } from "next/headers";
 
 const STATE_COOKIE = "strava_oauth_state";
 const REDIRECT_COOKIE = "strava_oauth_redirect";
+/** When linking Strava to an existing account, stores the user_id to link to */
+const LINK_USER_COOKIE = "strava_link_user_id";
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
@@ -24,12 +26,19 @@ export function generateState(): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/** Stores OAuth state and optional redirectTo in cookies */
-export async function setStravaOAuthCookies(state: string, redirectTo?: string): Promise<void> {
+/** Stores OAuth state, optional redirectTo, and optional linkUserId (when linking to existing account) */
+export async function setStravaOAuthCookies(
+  state: string,
+  redirectTo?: string,
+  linkUserId?: string
+): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set(STATE_COOKIE, state, COOKIE_OPTIONS);
   if (redirectTo) {
     cookieStore.set(REDIRECT_COOKIE, redirectTo, COOKIE_OPTIONS);
+  }
+  if (linkUserId) {
+    cookieStore.set(LINK_USER_COOKIE, linkUserId, COOKIE_OPTIONS);
   }
 }
 
@@ -46,5 +55,13 @@ export async function consumeRedirectCookie(): Promise<string | undefined> {
   const cookieStore = await cookies();
   const value = cookieStore.get(REDIRECT_COOKIE)?.value;
   cookieStore.delete(REDIRECT_COOKIE);
+  return value;
+}
+
+/** Reads linkUserId from cookie and deletes it (one-time use for link flow) */
+export async function consumeLinkUserCookie(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  const value = cookieStore.get(LINK_USER_COOKIE)?.value;
+  cookieStore.delete(LINK_USER_COOKIE);
   return value;
 }
