@@ -2,6 +2,7 @@
  * PostHog analytics wrapper. All analytics calls go through this module.
  * - Only initializes in browser
  * - Manual capture only (no autocapture of form inputs for privacy)
+ * - Uses first-party proxy (/ph) to avoid ad-blocker interference and improve reliability
  * - Extensible for checkout_started, purchase_completed (Shopify webhook) later
  */
 
@@ -15,12 +16,12 @@ export function initPosthog(): void {
   if (initialized) return;
 
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-  const host = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://app.posthog.com";
-
   if (!key) return;
 
+  // First-party proxy: requests go to our domain /ph/*, not posthog.com.
+  // Prevents ad blockers from blocking analytics and improves reliability.
   posthog.init(key, {
-    api_host: host,
+    api_host: "/ph",
     person_profiles: "identified_only",
     // Disable autocapture of inputs to avoid sending sensitive text
     autocapture: false,
