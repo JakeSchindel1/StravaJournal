@@ -12,6 +12,15 @@ import {
   EVENT_TO_WEBHOOK,
   sendToDiscord,
 } from "@/lib/cockpit/discord";
+import { interpretFunnelEvent } from "@/lib/cockpit/funnel-interpreter";
+
+// Events that go through the stateful interpreter instead of raw formatting.
+// The interpreter tracks session state and produces conversational messages.
+const INTERPRETED_EVENTS = new Set([
+  "builder_step_viewed",
+  "builder_step_completed",
+  "builder_closed",
+]);
 
 /**
  * Safely parse a value that may arrive as a stringified JSON object OR already
@@ -107,8 +116,25 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: true });
   }
 
+  let content: string | null;
+
+  if (INTERPRETED_EVENTS.has(eventName)) {
+    // Use the stateful interpreter — it decides whether to send a message at all
+    // and translates events into conversational language instead of raw data.
+    // Session key: prefer PostHog's own $session_id, fall back to distinct_id.
+    const sessionId =
+      (typeof properties.$session_id === "string" ? properties.$session_id : null) ??
+      distinctId ??
+      "unknown";
+    content = interpretFunnelEvent(eventName, sessionId, properties);
+  } else {
+    content = formatDiscordMessage(eventName, properties);
+  }
+
+  // null means the interpreter decided to suppress this event — skip silently
+  if (content === null) return Response.json({ ok: true });
+
   const webhookUrl = process.env[webhookEnv];
-  const content = formatDiscordMessage(eventName, properties);
 
   // Fire-and-forget: return ok:true immediately; Discord failures are non-blocking
   sendToDiscord(webhookUrl, content).catch((err) => {

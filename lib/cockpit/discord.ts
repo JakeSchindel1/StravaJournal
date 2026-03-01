@@ -28,44 +28,14 @@ export function formatDiscordMessage(
         `• Has journals: ${str(props, "has_existing_journals")}`,
       ].join("\n");
 
-    case "builder_step_viewed":
-      return [
-        "📋 Quinn funnel",
-        `• Step viewed: ${str(props, "step")}`,
-      ].join("\n");
+    // builder_step_viewed, builder_step_completed, builder_closed are handled
+    // by the stateful funnel interpreter before reaching here — not needed.
 
-    case "builder_step_completed":
-      return [
-        "📋 Quinn funnel",
-        `• Step completed: ${str(props, "step")}`,
-        `• Date preset: ${str(props, "date_preset")}`,
-        `• Cover: ${str(props, "cover_style")}`,
-        `• Layout: ${str(props, "layout")}`,
-      ].join("\n");
-
-    case "builder_closed": {
-      const reason = str(props, "reason");
-      if (reason === "completed") {
-        return [
-          "📋 Quinn funnel",
-          `• Step: ${str(props, "step")}`,
-          "• Completed flow",
-        ].join("\n");
-      }
-      return [
-        "📋 Quinn flagged a drop-off",
-        `• Step: ${str(props, "step")}`,
-        `• Reason: ${reason}`,
-      ].join("\n");
+    case "builder_saved_draft": {
+      const cover = str(props, "cover_style");
+      const layout = str(props, "layout");
+      return `📋 Quinn: Draft saved — ${cover} cover, ${layout} layout.`;
     }
-
-    case "builder_saved_draft":
-      return [
-        "📋 Quinn logged a draft",
-        `• Cover: ${str(props, "cover_style")}`,
-        `• Layout: ${str(props, "layout")}`,
-        `• Dates: ${str(props, "date_preset")}`,
-      ].join("\n");
 
     case "purchase_completed":
       return [
