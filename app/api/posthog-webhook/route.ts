@@ -13,24 +13,57 @@ import {
   sendToDiscord,
 } from "@/lib/cockpit/discord";
 
-/** PostHog sends event name in various places; normalize to string. */
-function parseEventName(body: unknown): string | null {
-  if (!body || typeof body !== "object") return null;
-  const o = body as Record<string, unknown>;
-  const name =
-    o.event ?? o.event_name ?? o.name ?? (o.properties as Record<string, unknown>)?.$event;
-  return typeof name === "string" ? name : null;
+/** Parse JSON string; on failure log one line and return {}. */
+function safeParseJson(value: unknown, label: string): Record<string, unknown> {
+  if (typeof value !== "string") return {};
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    console.warn(`[posthog-webhook] ${label} JSON.parse failed`);
+    return {};
+  }
 }
 
-/** Extract properties object from PostHog payload. */
-function parseProperties(body: unknown): Record<string, unknown> {
-  if (!body || typeof body !== "object") return {};
-  const o = body as Record<string, unknown>;
-  const props = o.properties ?? o.properties_;
-  if (props && typeof props === "object" && !Array.isArray(props)) {
-    return props as Record<string, unknown>;
+/** Extract event name, distinct_id, properties, person from PostHog templated payload. */
+function parsePayload(body: unknown): {
+  eventName: string | null;
+  distinctId: string | null;
+  properties: Record<string, unknown>;
+  person: Record<string, unknown>;
+} {
+  if (!body || typeof body !== "object") {
+    return { eventName: null, distinctId: null, properties: {}, person: {} };
   }
-  return {};
+  const o = body as Record<string, unknown>;
+
+  const eventName =
+    typeof o.event === "string" ? o.event : typeof o.event_name === "string" ? o.event_name : null;
+
+  const distinctId =
+    typeof o.distinct_id === "string" ? o.distinct_id : typeof o.distinctId === "string" ? o.distinctId : null;
+
+  let properties: Record<string, unknown>;
+  if (o.properties && typeof o.properties === "object" && !Array.isArray(o.properties)) {
+    properties = o.properties as Record<string, unknown>;
+  } else if (typeof o.properties_json === "string") {
+    properties = safeParseJson(o.properties_json, "properties_json");
+  } else {
+    properties = {};
+  }
+
+  let person: Record<string, unknown>;
+  if (o.person && typeof o.person === "object" && !Array.isArray(o.person)) {
+    person = o.person as Record<string, unknown>;
+  } else if (typeof o.person_json === "string") {
+    person = safeParseJson(o.person_json, "person_json");
+  } else {
+    person = {};
+  }
+
+  return { eventName, distinctId, properties, person };
 }
 
 export async function POST(request: NextRequest) {
@@ -50,20 +83,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const event = parseEventName(body);
-  if (!event) {
+  const { eventName, properties } = parsePayload(body);
+  if (!eventName) {
     return NextResponse.json({ error: "Missing event name" }, { status: 400 });
   }
 
-  const webhookEnv = EVENT_TO_WEBHOOK[event];
+  const webhookEnv = EVENT_TO_WEBHOOK[eventName];
   if (!webhookEnv) {
     // Unknown event: ignore, return 200 so PostHog doesn't retry
     return NextResponse.json({ received: true, routed: false });
   }
 
   const webhookUrl = process.env[webhookEnv];
-  const props = parseProperties(body);
-  const content = formatDiscordMessage(event, props);
+  const content = formatDiscordMessage(eventName, properties);
 
   // Fire-and-forget: don't await, return 200 immediately
   sendToDiscord(webhookUrl, content).catch(() => {
