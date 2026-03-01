@@ -7,7 +7,12 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import type { JournalDraft, DatePreset, CoverStyle, LayoutStyle } from "@/lib/journal-draft";
+import { track } from "@/lib/analytics/posthog";
+
+type BuilderCloseReason = "x_button" | "overlay_click" | "esc" | "completed";
+type BuilderSource = "hero_cta" | "create_tile" | "other";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -52,11 +57,13 @@ function generateTitle(draft: Partial<JournalDraft>): string {
 
 type JournalBuilderModalProps = {
   open: boolean;
+  source?: BuilderSource;
   onClose: () => void;
   onComplete?: (draft: JournalDraft) => void;
 };
 
-export function JournalBuilderModal({ open, onClose, onComplete }: JournalBuilderModalProps) {
+export function JournalBuilderModal({ open, source = "other", onClose, onComplete }: JournalBuilderModalProps) {
+  const pathname = usePathname();
   const [step, setStep] = useState<Step>(1);
   const [closing, setClosing] = useState(false);
   const [datePreset, setDatePreset] = useState<DatePreset>("last12mo");
@@ -68,6 +75,8 @@ export function JournalBuilderModal({ open, onClose, onComplete }: JournalBuilde
 
   const modalRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const prevOpenRef = useRef(false);
+  const lastStepRef = useRef<Step | null>(null);
 
   const buildDraft = useCallback((): JournalDraft => ({
     datePreset,
@@ -77,27 +86,38 @@ export function JournalBuilderModal({ open, onClose, onComplete }: JournalBuilde
     title: title.trim() || generateTitle({ datePreset, dateStart, dateEnd })
   }), [datePreset, dateStart, dateEnd, coverStyle, layout, title]);
 
-  const handleClose = useCallback(() => {
-    setClosing(true);
-    setTimeout(() => {
-      setStep(1);
-      setDatePreset("last12mo");
-      setDateStart("");
-      setDateEnd("");
-      setCoverStyle("classicBlack");
-      setLayout("minimal");
-      setTitle("My Training Journal");
-      setClosing(false);
-      triggerRef.current?.focus();
-      onClose();
-    }, 200);
-  }, [onClose]);
+  /** Close modal with reason for analytics. Fires builder_closed once, then resets state. */
+  const closeModal = useCallback(
+    (reason: BuilderCloseReason) => {
+      track("builder_closed", { reason, step });
+      setClosing(true);
+      setTimeout(() => {
+        setStep(1);
+        setDatePreset("last12mo");
+        setDateStart("");
+        setDateEnd("");
+        setCoverStyle("classicBlack");
+        setLayout("minimal");
+        setTitle("My Training Journal");
+        lastStepRef.current = null;
+        setClosing(false);
+        triggerRef.current?.focus();
+        onClose();
+      }, 200);
+    },
+    [onClose, step]
+  );
 
   const handleSaveDraft = useCallback(() => {
     const draft = buildDraft();
+    track("builder_saved_draft", {
+      date_preset: draft.datePreset,
+      cover_style: draft.coverStyle,
+      layout: draft.layout,
+    });
     onComplete?.(draft);
-    handleClose();
-  }, [buildDraft, onComplete, handleClose]);
+    closeModal("completed");
+  }, [buildDraft, onComplete, closeModal]);
 
   // Step 1 validation: if custom, need valid date range (end >= start)
   const isStep1Valid = datePreset !== "custom" || (!!dateStart && !!dateEnd && dateEnd >= dateStart);
@@ -113,9 +133,26 @@ export function JournalBuilderModal({ open, onClose, onComplete }: JournalBuilde
     if (open) triggerRef.current = document.activeElement as HTMLElement | null;
   }, [open]);
 
+  // builder_opened: fire once when modal transitions false -> true
+  useEffect(() => {
+    if (open && !prevOpenRef.current) {
+      track("builder_opened", { source, path: pathname ?? "/" });
+    }
+    prevOpenRef.current = open;
+  }, [open, source, pathname]);
+
+  // builder_step_viewed: fire once per step entry (avoid double-fire)
+  useEffect(() => {
+    if (!open) return;
+    if (lastStepRef.current !== step) {
+      lastStepRef.current = step;
+      track("builder_step_viewed", { step });
+    }
+  }, [open, step]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") closeModal("esc");
     };
     if (open) {
       document.addEventListener("keydown", handleKeyDown);
@@ -125,7 +162,7 @@ export function JournalBuilderModal({ open, onClose, onComplete }: JournalBuilde
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [open, handleClose]);
+  }, [open, closeModal]);
 
   // Focus trap + focus first element on open
   useEffect(() => {
@@ -170,10 +207,10 @@ export function JournalBuilderModal({ open, onClose, onComplete }: JournalBuilde
       className={`fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-[#231F20]/40 p-0 sm:p-4 backdrop-blur-sm transition-opacity duration-200 ${
         closing ? "opacity-0" : "opacity-100"
       }`}
-      onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="journal-builder-title"
+      onClick={() => closeModal("overlay_click")}
     >
       <div
         ref={modalRef}
@@ -189,7 +226,7 @@ export function JournalBuilderModal({ open, onClose, onComplete }: JournalBuilde
           </h2>
           <button
             type="button"
-            onClick={handleClose}
+            onClick={() => closeModal("x_button")}
             className="rounded-full p-1.5 text-[#6B6B6B] transition hover:bg-[#F0F0F0] hover:text-[#231F20] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2 active:scale-[0.98]"
             aria-label="Close"
           >
@@ -370,7 +407,15 @@ export function JournalBuilderModal({ open, onClose, onComplete }: JournalBuilde
           {step < 4 ? (
             <button
               type="button"
-              onClick={() => setStep((s) => (s + 1) as Step)}
+              onClick={() => {
+                const currentStep = step;
+                const props: Record<string, unknown> = { step: currentStep };
+                if (currentStep >= 1) props.date_preset = datePreset;
+                if (currentStep >= 2) props.cover_style = coverStyle;
+                if (currentStep >= 3) props.layout = layout;
+                track("builder_step_completed", props);
+                setStep((s) => (s + 1) as Step);
+              }}
               disabled={!isStep1Valid}
               className="button-primary px-6 py-2.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
             >

@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthModalProvider } from "@/contexts/AuthModalContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { ProfileModalProvider } from "@/contexts/ProfileModalContext";
+import { PostHogProvider } from "@/components/PostHogProvider";
 import { ConditionalHeader } from "@/components/ConditionalHeader";
 import { ProfileModal } from "@/components/ProfileModal";
 
@@ -33,13 +34,15 @@ export default function RootLayout({
     <html lang="en" className={polymath.variable}>
       <body>
         <UserProvider>
-          <ProfileModalProvider>
+          <PostHogProvider>
+            <ProfileModalProvider>
             <AuthModalProvider>
               <ConditionalHeader />
               {children}
             </AuthModalProvider>
             <ProfileModal />
           </ProfileModalProvider>
+          </PostHogProvider>
         </UserProvider>
       </body>
     </html>

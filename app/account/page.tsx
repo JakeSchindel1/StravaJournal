@@ -5,7 +5,7 @@
  * Hero, stats, journals list, create journal flow.
  */
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SectionShell } from "@/components/SectionShell";
 import { Footer } from "@/components/Footer";
@@ -17,6 +17,9 @@ import { useUser } from "@/contexts/UserContext";
 import { useProfileModal } from "@/contexts/ProfileModalContext";
 import { MOCK_JOURNALS, journalFromDraft, type Journal } from "@/lib/mock-journals";
 import type { JournalDraft } from "@/lib/journal-draft";
+import { track } from "@/lib/analytics/posthog";
+
+type BuilderSource = "hero_cta" | "create_tile" | "other";
 
 function AccountContent() {
   const router = useRouter();
@@ -24,7 +27,14 @@ function AccountContent() {
   const { user, loading, needsEmail, hasStrava } = useUser();
   const { openModal: openProfileModal } = useProfileModal();
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [builderSource, setBuilderSource] = useState<BuilderSource>("other");
   const [journals, setJournals] = useState<Journal[]>(MOCK_JOURNALS);
+  const accountViewedRef = useRef(false);
+
+  const openBuilder = (source: BuilderSource) => {
+    setBuilderSource(source);
+    setBuilderOpen(true);
+  };
 
   const handleBuilderComplete = (draft: JournalDraft) => {
     const id = `draft-${Date.now()}`;
@@ -36,6 +46,14 @@ function AccountContent() {
       router.replace("/");
     }
   }, [user, loading, router]);
+
+  // account_page_viewed: fire once when page loads with user
+  useEffect(() => {
+    if (!loading && user && !accountViewedRef.current) {
+      accountViewedRef.current = true;
+      track("account_page_viewed", { has_existing_journals: journals.length > 0 });
+    }
+  }, [loading, user, journals.length]);
 
   const error = searchParams.get("error");
   const errorMessage =
@@ -97,7 +115,7 @@ function AccountContent() {
           </div>
         </div>
       )}
-      <AccountHero onCreateJournal={() => setBuilderOpen(true)} />
+      <AccountHero onCreateJournal={() => openBuilder("hero_cta")} />
 
       <SectionShell className="bg-white">
         <div className="mb-8">
@@ -120,7 +138,7 @@ function AccountContent() {
               }}
             />
           ))}
-          <CreateJournalCard onCreate={() => setBuilderOpen(true)} />
+          <CreateJournalCard onCreate={() => openBuilder("create_tile")} />
         </div>
       </SectionShell>
 
@@ -128,6 +146,7 @@ function AccountContent() {
 
       <JournalBuilderModal
         open={builderOpen}
+        source={builderSource}
         onClose={() => setBuilderOpen(false)}
         onComplete={handleBuilderComplete}
       />
