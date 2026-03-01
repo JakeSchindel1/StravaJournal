@@ -69,3 +69,19 @@ What it sets up:
 If you want token writes to be server-only, remove the `insert/update/delete` policies on `public.strava_connections` and write with the service role from your backend.
 
 Once env keys + provider settings + SQL are in place, users can authenticate and always have a stable internal profile id for storing connected-account data.
+
+## PostHog → Discord Cockpit
+
+PostHog events are forwarded to Discord webhooks for live monitoring (Lou, Quinn, Frank, Oscar, Bob).
+
+### Setup
+
+1. Add Discord webhook URLs and optional secret to `.env.local`:
+   - `DISCORD_LIVE_USERS_WEBHOOK`, `DISCORD_FUNNEL_WEBHOOK`, `DISCORD_PURCHASES_WEBHOOK`, `DISCORD_ERRORS_WEBHOOK`, `DISCORD_SYSTEM_WEBHOOK`
+   - `POSTHOG_WEBHOOK_SECRET` (optional; if set, PostHog must send `X-PostHog-Secret` header)
+
+2. In PostHog → Data Pipelines → Destinations → Webhook:
+   - URL: `https://your-domain.com/api/posthog-webhook`
+   - Add header: `X-PostHog-Secret: <your-secret>` (if using secret)
+
+3. Test: `GET /api/test-cockpit` sends a message to each webhook and returns status.
