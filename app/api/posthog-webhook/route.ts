@@ -53,9 +53,6 @@ function parsePayload(body: unknown): {
   const eventName =
     typeof o.event === "string" ? o.event : typeof o.event_name === "string" ? o.event_name : null;
 
-  const distinctId =
-    typeof o.distinct_id === "string" ? o.distinct_id : typeof o.distinctId === "string" ? o.distinctId : null;
-
   // Prefer the direct field; fall back to the _json variant (PostHog templated string)
   const properties = safeParse(
     o.properties ?? o.properties_json,
@@ -66,6 +63,12 @@ function parsePayload(body: unknown): {
     o.person ?? o.person_json,
     "person"
   );
+
+  // PostHog may not send distinct_id at the top level, so pull it from person or properties
+  const distinctId =
+    (typeof person.distinct_id === "string" ? person.distinct_id : null) ??
+    (typeof properties.distinct_id === "string" ? properties.distinct_id : null) ??
+    "anonymous";
 
   return { eventName, distinctId, properties, person };
 }
