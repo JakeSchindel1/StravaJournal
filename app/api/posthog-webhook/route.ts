@@ -13,18 +13,29 @@ import {
   sendToDiscord,
 } from "@/lib/cockpit/discord";
 
-/** Parse JSON string; on failure log one line and return {}. */
-function safeParseJson(value: unknown, label: string): Record<string, unknown> {
-  if (typeof value !== "string") return {};
-  try {
-    const parsed = JSON.parse(value);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? (parsed as Record<string, unknown>)
-      : {};
-  } catch {
-    console.warn(`[posthog-webhook] ${label} JSON.parse failed`);
-    return {};
+/**
+ * Safely parse a value that may arrive as a stringified JSON object OR already
+ * be a plain object (PostHog sometimes does either). Returns {} on any failure.
+ */
+function safeParse(value: unknown, label: string): Record<string, unknown> {
+  if (!value) return {};
+  // Already a plain object — use it directly
+  if (typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
   }
+  // Stringified JSON — parse it
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : {};
+    } catch {
+      console.warn(`[posthog-webhook] ${label} JSON.parse failed`);
+      return {};
+    }
+  }
+  return {};
 }
 
 /** Extract event name, distinct_id, properties, person from PostHog templated payload. */
@@ -45,62 +56,61 @@ function parsePayload(body: unknown): {
   const distinctId =
     typeof o.distinct_id === "string" ? o.distinct_id : typeof o.distinctId === "string" ? o.distinctId : null;
 
-  let properties: Record<string, unknown>;
-  if (o.properties && typeof o.properties === "object" && !Array.isArray(o.properties)) {
-    properties = o.properties as Record<string, unknown>;
-  } else if (typeof o.properties_json === "string") {
-    properties = safeParseJson(o.properties_json, "properties_json");
-  } else {
-    properties = {};
-  }
+  // Prefer the direct field; fall back to the _json variant (PostHog templated string)
+  const properties = safeParse(
+    o.properties ?? o.properties_json,
+    "properties"
+  );
 
-  let person: Record<string, unknown>;
-  if (o.person && typeof o.person === "object" && !Array.isArray(o.person)) {
-    person = o.person as Record<string, unknown>;
-  } else if (typeof o.person_json === "string") {
-    person = safeParseJson(o.person_json, "person_json");
-  } else {
-    person = {};
-  }
+  const person = safeParse(
+    o.person ?? o.person_json,
+    "person"
+  );
 
   return { eventName, distinctId, properties, person };
 }
 
 export async function POST(request: NextRequest) {
-  // Verify webhook authenticity
+  // Verify webhook authenticity — 401 is intentional even for PostHog, so it
+  // knows to stop sending (wrong secret = misconfiguration, not a retry-able error).
   const secret = process.env.POSTHOG_WEBHOOK_SECRET;
-  const headerSecret = request.headers.get("X-PostHog-Secret");
-  if (secret) {
-    if (!headerSecret || headerSecret !== secret) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const headerSecret = request.headers.get("x-posthog-secret");
+  if (secret && (!headerSecret || headerSecret !== secret)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    // Bad JSON: return ok:true anyway so PostHog doesn't retry infinitely
+    console.warn("[posthog-webhook] Could not parse request body as JSON");
+    return Response.json({ ok: true });
   }
 
-  const { eventName, properties } = parsePayload(body);
+  const { eventName, distinctId, properties } = parsePayload(body);
+
+  // Always log so we can debug in Vercel/server logs
+  console.log("[posthog-webhook] event:", eventName, "| distinct_id:", distinctId, "| properties:", properties);
+
   if (!eventName) {
-    return NextResponse.json({ error: "Missing event name" }, { status: 400 });
+    // No event name means we can't route — return ok:true to stop PostHog retries
+    return Response.json({ ok: true });
   }
 
   const webhookEnv = EVENT_TO_WEBHOOK[eventName];
   if (!webhookEnv) {
-    // Unknown event: ignore, return 200 so PostHog doesn't retry
-    return NextResponse.json({ received: true, routed: false });
+    // Unknown event: silently ignore, return ok:true so PostHog doesn't retry
+    return Response.json({ ok: true });
   }
 
   const webhookUrl = process.env[webhookEnv];
   const content = formatDiscordMessage(eventName, properties);
 
-  // Fire-and-forget: don't await, return 200 immediately
-  sendToDiscord(webhookUrl, content).catch(() => {
-    // Logged server-side if needed; we already returned 200
+  // Fire-and-forget: return ok:true immediately; Discord failures are non-blocking
+  sendToDiscord(webhookUrl, content).catch((err) => {
+    console.error("[posthog-webhook] Discord send failed:", err);
   });
 
-  return NextResponse.json({ received: true, routed: true });
+  return Response.json({ ok: true });
 }
