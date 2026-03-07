@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuthHaptics } from "@/hooks/useAuthHaptics";
 import { PasswordStrength } from "./PasswordStrength";
 import type { SignInModalAuthHandlers } from "./types";
 
@@ -27,6 +28,7 @@ export function EmailAuthForm({
   handlers,
   onSuccess
 }: EmailAuthFormProps) {
+  const { triggerAuthTap } = useAuthHaptics();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -131,6 +133,7 @@ export function EmailAuthForm({
       <button
         type="submit"
         disabled={loading}
+        onClick={triggerAuthTap}
         className="button-primary w-full disabled:opacity-50"
       >
         {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}

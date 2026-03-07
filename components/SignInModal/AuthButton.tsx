@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useAuthHaptics } from "@/hooks/useAuthHaptics";
 
 type AuthButtonProps = {
   onClick: () => void;
@@ -11,6 +12,7 @@ type AuthButtonProps = {
 };
 
 export function AuthButton({ onClick, disabled, variant, icon, children }: AuthButtonProps) {
+  const { triggerAuthTap } = useAuthHaptics();
   const base =
     "flex w-full items-center justify-center gap-3 rounded-full px-6 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2";
 
@@ -22,7 +24,10 @@ export function AuthButton({ onClick, disabled, variant, icon, children }: AuthB
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={() => {
+        triggerAuthTap();
+        onClick();
+      }}
       disabled={disabled}
       className={`${base} ${styles}`}
     >

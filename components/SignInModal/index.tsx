@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { signInWithEmail, signInWithOAuth, signUpWithEmail } from "@/lib/supabase";
+import { useAuthHaptics } from "@/hooks/useAuthHaptics";
 import { startStravaAuth } from "@/lib/strava/client";
 import type { SignInModalAuthHandlers } from "./types";
 import { AuthButton } from "./AuthButton";
@@ -32,6 +33,7 @@ type SignInModalProps = {
 };
 
 export function SignInModal({ isOpen, onClose, initialMode = "signup", initialShowEmailForm = false, authHandlers = {} }: SignInModalProps) {
+  const { triggerAuthSuccess } = useAuthHaptics();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [showEmailForm, setShowEmailForm] = useState(initialShowEmailForm);
   const [loadingSource, setLoadingSource] = useState<AuthLoadingSource>(null);
@@ -90,6 +92,7 @@ export function SignInModal({ isOpen, onClose, initialMode = "signup", initialSh
       const fn = handler ?? fallback;
       if (fn) {
         await fn();
+        triggerAuthSuccess();
         handleClose();
       } else {
         setError(
@@ -119,8 +122,9 @@ export function SignInModal({ isOpen, onClose, initialMode = "signup", initialSh
   }, [authHandlers.onGoogleAuth]);
 
   const handleEmailSuccess = useCallback(() => {
+    triggerAuthSuccess();
     handleClose();
-  }, [handleClose]);
+  }, [handleClose, triggerAuthSuccess]);
 
   const loading = loadingSource !== null;
   const stravaLoading = loadingSource === "strava";

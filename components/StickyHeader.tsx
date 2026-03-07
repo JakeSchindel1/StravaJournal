@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuthModal } from "@/contexts/AuthModalContext";
+import { useAuthHaptics } from "@/hooks/useAuthHaptics";
 import { useUser } from "@/contexts/UserContext";
 import { useProfileModal } from "@/contexts/ProfileModalContext";
 
@@ -10,6 +11,7 @@ const GET_STARTED_ANCHOR_ID = "get-started-anchor";
 export function StickyHeader() {
   const [isVisible, setIsVisible] = useState(false);
   const { openModal } = useAuthModal();
+  const { triggerAuthTap } = useAuthHaptics();
   const { user, profile, loading, needsEmail, hasStrava } = useUser();
   const { openModal: openProfileModal } = useProfileModal();
 
@@ -72,14 +74,20 @@ export function StickyHeader() {
           <>
             <button
               type="button"
-              onClick={() => openModal("signin")}
+              onClick={() => {
+                triggerAuthTap();
+                openModal("signin");
+              }}
               className="rounded-full px-3 py-1.5 text-sm font-medium text-[#231F20] hover:bg-[#F0F0F0] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#231F20] focus-visible:ring-offset-2"
             >
               Sign in
             </button>
             <button
               type="button"
-              onClick={() => openModal("signup")}
+              onClick={() => {
+                triggerAuthTap();
+                openModal("signup");
+              }}
               className="button-primary py-1.5 px-4 text-sm"
             >
               Get Started
