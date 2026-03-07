@@ -1,7 +1,11 @@
+"use client";
+
 import { GET_STARTED_HREF } from "../getStarted";
 import { SectionShell } from "../SectionShell";
+import { useAuthHaptics } from "@/hooks/useAuthHaptics";
 
 export function FinalCtaSection() {
+  const { triggerAuthTap } = useAuthHaptics();
   return (
     <SectionShell id="get-started" className="text-center">
       <h2 className="heading reveal text-4xl leading-tight text-[#231F20] sm:text-5xl md:text-6xl">
@@ -21,6 +25,7 @@ export function FinalCtaSection() {
 
       <a
         href={GET_STARTED_HREF}
+        onClick={triggerAuthTap}
         className="button-primary reveal mt-10"
         style={{ animationDelay: "200ms" }}
       >
