@@ -3,19 +3,15 @@
 import { useWebHaptics } from "web-haptics/react";
 
 /**
- * Premium two-pulse pattern: crisp initial contact + subtle mechanical click finish.
- * Used only for auth CTAs (Get Started, Sign In, Continue with Strava/Google).
+ * Subtle single-pulse pattern for auth CTAs (Get Started, Sign In, Continue with Strava/Google).
  */
-const AUTH_TAP_PATTERN = [
-  { duration: 18 },
-  { delay: 35, duration: 22, intensity: 0.9 }
-] as const;
+const AUTH_TAP_PATTERN = [{ duration: 8 }];
 
 export function useAuthHaptics() {
   const { trigger } = useWebHaptics();
 
   const triggerAuthTap = () => {
-    trigger([...AUTH_TAP_PATTERN]);
+    trigger(AUTH_TAP_PATTERN, { intensity: 0.3 });
   };
 
   const triggerAuthSuccess = () => {
