@@ -13,6 +13,7 @@ const TESTS: { key: string; message: string }[] = [
   { key: "DISCORD_ERRORS_WEBHOOK", message: "🚨 Oscar online" },
   { key: "DISCORD_SYSTEM_WEBHOOK", message: "⚙️ Bob online" },
   { key: "DISCORD_PURCHASES_WEBHOOK", message: "💰 Frank online" },
+  { key: "DISCORD_NEW_USER_WEBHOOK", message: "🪪 Benny online" },
 ];
 
 export async function GET() {

@@ -1,5 +1,6 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { track } from "@/lib/analytics/posthog";
 
 type OAuthProvider = "google" | "strava";
 
@@ -68,8 +69,16 @@ export async function signUpWithEmail(email: string, password: string) {
     throw new Error("Authentication is not configured. Add Supabase env keys to continue.");
   }
 
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;
+
+  // Capture new account event for Benny — no email included for privacy
+  if (data.user?.id) {
+    track("account_created", {
+      provider: "email",
+      $user_id: data.user.id,
+    });
+  }
 }
 
 export async function signInWithEmail(email: string, password: string) {
