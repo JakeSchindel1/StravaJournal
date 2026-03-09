@@ -1,7 +1,25 @@
 /**
  * Discord Cockpit helpers. Format PostHog events into short Discord messages
  * and send them to the appropriate webhooks (Lou, Quinn, Frank, Oscar, Bob).
+ *
+ * Lou: presence / arrivals / top-of-funnel only. Short, observational, no bullets.
+ * Quinn: interpretation / friction / meaningful builder behavior only.
+ * Privacy: no email, IP, full URLs, or raw PostHog property dumps.
  */
+
+/** Human-readable labels for cover/layout (matches JournalBuilderModal). */
+const COVER_LABELS: Record<string, string> = {
+  classicBlack: "Classic Black",
+  linen: "Linen",
+  midnight: "Midnight",
+  stone: "Stone",
+  burgundy: "Burgundy",
+};
+const LAYOUT_LABELS: Record<string, string> = {
+  minimal: "Minimal",
+  detailed: "Detailed",
+  photo: "Photo",
+};
 
 /** Safely get string from unknown props. */
 function str(props: Record<string, unknown>, key: string): string {
@@ -9,34 +27,36 @@ function str(props: Record<string, unknown>, key: string): string {
   return typeof v === "string" ? v : v != null ? String(v) : "—";
 }
 
-/** Format event + props into a short Discord message (under ~15 lines). */
+/**
+ * Format event + props into a short Discord message.
+ * Lou events: short, observational, no bullets.
+ * Quinn events: inspector voice, short, useful.
+ */
 export function formatDiscordMessage(
   event: string,
   props: Record<string, unknown>
 ): string {
   switch (event) {
+    // ── Lou: top-of-funnel only ─────────────────────────────────────────────
+    case "landing_page_viewed":
+      return "👀 Lou: Someone landed on the site.";
+
+    case "get_started_clicked":
+      return "👀 Lou: Get Started got a click.";
+
     case "builder_opened":
-      return [
-        "👀 Lou spotted activity",
-        `• Source: ${str(props, "source")}`,
-        `• Returning: ${str(props, "returning") || "—"}`,
-      ].join("\n");
+      return "👀 Lou: Builder opened.";
 
-    case "account_page_viewed":
-      return [
-        "👀 Lou spotted activity",
-        `• Has journals: ${str(props, "has_existing_journals")}`,
-      ].join("\n");
-
-    // builder_step_viewed, builder_step_completed, builder_closed are handled
-    // by the stateful funnel interpreter before reaching here — not needed.
-
+    // ── Quinn: meaningful builder behavior ─────────────────────────────────
     case "builder_saved_draft": {
-      const cover = str(props, "cover_style");
-      const layout = str(props, "layout");
+      const coverId = str(props, "cover_style");
+      const layoutId = str(props, "layout");
+      const cover = COVER_LABELS[coverId] ?? coverId;
+      const layout = LAYOUT_LABELS[layoutId] ?? layoutId;
       return `📋 Quinn: Draft saved — ${cover} cover, ${layout} layout.`;
     }
 
+    // ── Other personas (unchanged) ──────────────────────────────────────────
     case "purchase_completed":
       return [
         "💰 Frank logged a purchase",
@@ -62,24 +82,24 @@ export function formatDiscordMessage(
       ].join("\n");
 
     default:
-      return [
-        `📌 ${event}`,
-        Object.entries(props)
-          .slice(0, 5)
-          .map(([k, v]) => `• ${k}: ${v ?? "—"}`)
-          .join("\n"),
-      ].join("\n");
+      // Privacy-safe: event name only, no property dump
+      return `📌 ${event}`;
   }
 }
 
-/** Event → Discord webhook env var. Unknown events return null. */
+/** Event → Discord webhook env var. Lou = live users, Quinn = funnel. */
 export const EVENT_TO_WEBHOOK: Record<string, string> = {
+  // Lou: top-of-funnel arrivals only
+  landing_page_viewed: "DISCORD_LIVE_USERS_WEBHOOK",
+  get_started_clicked: "DISCORD_LIVE_USERS_WEBHOOK",
   builder_opened: "DISCORD_LIVE_USERS_WEBHOOK",
-  account_page_viewed: "DISCORD_LIVE_USERS_WEBHOOK",
+
+  // Quinn: funnel interpretation (builder_step_*, builder_closed go through interpreter)
   builder_step_viewed: "DISCORD_FUNNEL_WEBHOOK",
   builder_step_completed: "DISCORD_FUNNEL_WEBHOOK",
   builder_closed: "DISCORD_FUNNEL_WEBHOOK",
   builder_saved_draft: "DISCORD_FUNNEL_WEBHOOK",
+
   purchase_completed: "DISCORD_PURCHASES_WEBHOOK",
   app_error: "DISCORD_ERRORS_WEBHOOK",
   builder_error: "DISCORD_ERRORS_WEBHOOK",

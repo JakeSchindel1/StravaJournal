@@ -2,6 +2,7 @@
 
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { useAuthHaptics } from "@/hooks/useAuthHaptics";
+import { track } from "@/lib/analytics/posthog";
 
 type GetStartedButtonProps = {
   className?: string;
@@ -15,6 +16,7 @@ export function GetStartedButton({ className = "" }: GetStartedButtonProps) {
     <button
       type="button"
       onClick={() => {
+        track("get_started_clicked");
         triggerAuthTap();
         openModal("signup");
       }}

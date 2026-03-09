@@ -102,8 +102,8 @@ export async function POST(request: NextRequest) {
 
   const { eventName, distinctId, properties } = parsePayload(body);
 
-  // Always log so we can debug in Vercel/server logs
-  console.log("[posthog-webhook] event:", eventName, "| distinct_id:", distinctId, "| properties:", properties);
+  // Log for debugging (privacy-safe: no properties dump)
+  console.log("[posthog-webhook] event:", eventName, "| distinct_id:", distinctId);
 
   if (!eventName) {
     // No event name means we can't route — return ok:true to stop PostHog retries

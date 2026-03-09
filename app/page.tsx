@@ -1,4 +1,5 @@
 import { Footer } from "@/components/Footer";
+import { LandingPageTracker } from "@/components/LandingPageTracker";
 import { CraftSection } from "@/components/sections/CraftSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { MeaningSection } from "@/components/sections/MeaningSection";
@@ -7,6 +8,7 @@ import { ProductConceptSection } from "@/components/sections/ProductConceptSecti
 export default function HomePage() {
   return (
     <main>
+      <LandingPageTracker />
       <HeroSection />
       <ProductConceptSection />
       <CraftSection />
