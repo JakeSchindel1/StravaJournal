@@ -6,6 +6,7 @@
  */
 
 import { Suspense, useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SectionShell } from "@/components/SectionShell";
 import { Footer } from "@/components/Footer";
@@ -139,6 +140,21 @@ function AccountContent() {
             />
           ))}
           <CreateJournalCard onCreate={() => openBuilder("create_tile")} />
+        </div>
+
+        {/* Keep privacy controls inside account so users can quickly manage their data rights. */}
+        <div className="mt-10 rounded-xl border border-[#E7E4E4] bg-[#FAFAFA] p-5">
+          <h3 className="heading text-xl font-semibold text-[#231F20]">Data &amp; Privacy</h3>
+          <p className="mt-2 text-sm text-[#6B6B6B]">
+            Review how your data is used, or request export/deletion by emailing{" "}
+            <a href="mailto:hello@stravajournal.com" className="underline">
+              hello@stravajournal.com
+            </a>
+            .
+          </p>
+          <Link href="/privacy" className="mt-3 inline-block text-sm font-medium text-[#231F20] underline">
+            View Privacy Policy
+          </Link>
         </div>
       </SectionShell>
 
