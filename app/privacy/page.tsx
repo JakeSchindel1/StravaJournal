@@ -1,6 +1,6 @@
 import { SectionShell } from "@/components/SectionShell";
 
-const CONTACT_EMAIL = "hello@stravajournal.com";
+const CONTACT_EMAIL = "schinjake@gmail.com";
 const INACTIVE_DATA_EXPIRATION_MONTHS = 24;
 
 /**

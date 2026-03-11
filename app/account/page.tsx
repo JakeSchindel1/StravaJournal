@@ -147,8 +147,8 @@ function AccountContent() {
           <h3 className="heading text-xl font-semibold text-[#231F20]">Data &amp; Privacy</h3>
           <p className="mt-2 text-sm text-[#6B6B6B]">
             Review how your data is used, or request export/deletion by emailing{" "}
-            <a href="mailto:hello@stravajournal.com" className="underline">
-              hello@stravajournal.com
+            <a href="mailto:schinjake@gmail.com" className="underline">
+              schinjake@gmail.com
             </a>
             .
           </p>
