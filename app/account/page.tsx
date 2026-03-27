@@ -19,6 +19,7 @@ import { useProfileModal } from "@/contexts/ProfileModalContext";
 import { MOCK_JOURNALS, journalFromDraft, type Journal } from "@/lib/mock-journals";
 import type { JournalDraft } from "@/lib/journal-draft";
 import { track } from "@/lib/analytics/posthog";
+import { SITE_EMAIL } from "@/lib/site-emails";
 
 type BuilderSource = "hero_cta" | "create_tile" | "other";
 
@@ -147,8 +148,8 @@ function AccountContent() {
           <h3 className="heading text-xl font-semibold text-[#231F20]">Data &amp; Privacy</h3>
           <p className="mt-2 text-sm text-[#6B6B6B]">
             Review how your data is used, or request export/deletion by emailing{" "}
-            <a href="mailto:schinjake@gmail.com" className="underline">
-              schinjake@gmail.com
+            <a href={`mailto:${SITE_EMAIL.privacy}`} className="underline">
+              {SITE_EMAIL.privacy}
             </a>
             .
           </p>

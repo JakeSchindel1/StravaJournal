@@ -1,6 +1,7 @@
 import { SectionShell } from "@/components/SectionShell";
+import { SITE_EMAIL } from "@/lib/site-emails";
 
-const CONTACT_EMAIL = "schinjake@gmail.com";
+const CONTACT_EMAIL = SITE_EMAIL.privacy;
 const INACTIVE_DATA_EXPIRATION_MONTHS = 24;
 
 /**
