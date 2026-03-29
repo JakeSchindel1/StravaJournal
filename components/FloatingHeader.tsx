@@ -61,7 +61,7 @@ export function FloatingHeader() {
         href="/"
         className="heading text-sm font-semibold text-[#231F20] transition hover:opacity-80"
       >
-        Activity Journal
+        Grex
       </Link>
 
       <div className="flex items-center gap-4">

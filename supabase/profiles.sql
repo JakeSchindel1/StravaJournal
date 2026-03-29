@@ -1,4 +1,4 @@
--- StravaJournal Supabase setup
+-- Grex Supabase setup
 -- Run this whole script in Supabase SQL Editor.
 --
 -- What this gives you:

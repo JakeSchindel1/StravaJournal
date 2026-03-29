@@ -40,7 +40,7 @@ export function StickyHeader() {
       role="banner"
       aria-hidden={!isVisible}
     >
-      <span className="heading text-sm font-semibold text-[#231F20] sm:text-base">Activity Journal</span>
+      <span className="heading text-sm font-semibold text-[#231F20] sm:text-base">Grex</span>
       <div className="flex items-center gap-2">
         {!loading && user ? (
           <button

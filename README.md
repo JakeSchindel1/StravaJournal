@@ -1,6 +1,6 @@
-# StravaJournal
+# Grex
 
-Landing page + auth entrypoint for StravaJournal.
+Landing page + auth entrypoint for Grex.
 
 ## Local setup
 

@@ -10,7 +10,7 @@ export function HeroProductVisual() {
         role="img"
         aria-label="Product placeholder — journal hero image"
       >
-        {/* Placeholder: replace with <img src="/your-journal-hero.jpg" alt="Strava Journal" className="h-full w-full object-cover rounded-2xl md:rounded-3xl" /> */}
+        {/* Placeholder: replace with <img src="/your-journal-hero.jpg" alt="Grex" className="h-full w-full object-cover rounded-2xl md:rounded-3xl" /> */}
         <div className="flex h-full w-full items-center justify-center">
           <div className="h-16 w-24 text-[#231F20]/10 md:h-20 md:w-28">
             <svg viewBox="0 0 120 80" fill="currentColor" className="h-full w-full">

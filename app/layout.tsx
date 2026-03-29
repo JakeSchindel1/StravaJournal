@@ -19,10 +19,24 @@ const polymath = localFont({
   variable: "--font-polymath"
 });
 
+// Site-wide SEO and social previews — keep in sync when the product tagline changes.
 export const metadata: Metadata = {
-  title: "Strava Journal | A better home for your training",
+  title: "Grex | A better home for your training",
   description:
-    "A premium physical journal built from your activity history. One journal. Your history. Made to be kept."
+    "Grex is a premium physical journal built from your activity history. One journal. Your history. Made to be kept.",
+  openGraph: {
+    title: "Grex | A better home for your training",
+    description:
+      "Grex is a premium physical journal built from your activity history. One journal. Your history. Made to be kept.",
+    siteName: "Grex",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Grex | A better home for your training",
+    description:
+      "Grex is a premium physical journal built from your activity history. One journal. Your history. Made to be kept."
+  }
 };
 
 export default function RootLayout({

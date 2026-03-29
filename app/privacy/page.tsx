@@ -19,7 +19,7 @@ export default function PrivacyPage() {
           <section className="space-y-3">
             <h2 className="heading text-xl font-semibold">1. What we collect</h2>
             <p>
-              When you use ActivityJournal, we collect account and activity information needed to provide the
+              When you use Grex, we collect account and activity information needed to provide the
               service, including your name, email, connected account identifiers, and workout metadata imported
               through Strava and/or Garmin integrations.
             </p>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
               access from your Strava/Garmin account settings at any time.
             </p>
             <p>
-              ActivityJournal is an independent service and is not endorsed by Strava or Garmin. We keep user
+              Grex is an independent service and is not endorsed by Strava or Garmin. We keep user
               data private, apply reasonable safeguards, and limit use of connected-platform data to user-facing
               product functionality and support.
             </p>
